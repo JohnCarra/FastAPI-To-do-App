@@ -17,8 +17,8 @@ cd todolist
 
 Create and activate a virtual environment to isolate the project's dependencies:
 
-python -m venv venv
-source venv/bin/activate # For Linux and macOS
+python -m venv venv  
+source venv/bin/activate # For Linux and macOS  
 venv\Scripts\activate # For Windows
 
 ### 3. Install the required packages
@@ -31,10 +31,10 @@ pip install -r requirements.txt
 
 Create a `.env` file in the project folder and add the following environment variables:
 
-DB_HOST=<your_database_host>
-DB_NAME=<your_database_name>
-DB_USER=<your_database_user>
-DB_PASSWORD=<your_database_password>
+DB_HOST=<your_database_host>  
+DB_NAME=<your_database_name>  
+DB_USER=<your_database_user>  
+DB_PASSWORD=<your_database_password>  
 
 Replace `<your_database_host>`, `<your_database_name>`, `<your_database_user>`, and `<your_database_password>` with your actual PostgreSQL database connection details.
 
@@ -42,7 +42,7 @@ Replace `<your_database_host>`, `<your_database_name>`, `<your_database_user>`, 
 
 Run the `setup.sql` script to create the required tables and grant access to the specified user:
 
-psql -h <your_database_host> -U <your_database_user> -d <your_database_name> -f setup.sql
+psql -h <your_database_host> -U <your_database_user> -d <your_database_name> -f setup.sql  
 
 Replace `<your_database_host>`, `<your_database_user>`, and `<your_database_name>` with your actual PostgreSQL database connection details.
 
