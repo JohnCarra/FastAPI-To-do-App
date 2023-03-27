@@ -8,34 +8,44 @@ app = FastAPI()
 db = Database()
 
 
+@app.on_event("startup")
+async def startup():
+    await db.connect()
+
+
+@app.on_event("shutdown")
+async def shutdown():
+    await db.disconnect()
+
+
 @app.post("/todos/")
-def create_todo_item(todo_item: ToDoItem):
-    query = "INSERT INTO tasks (name, description, due_date) VALUES (%s, %s, %s) RETURNING id;"
+async def create_todo_item(todo_item: ToDoItem):
+    query = "INSERT INTO tasks (name, description, due_date) VALUES ($1, $2, $3) RETURNING id;"
     values = (todo_item.name, todo_item.description, todo_item.due_date)
-    todo_id = db.fetch_single_query(query, values)[0]
-    return {"id": todo_id, **todo_item.dict()}
+    todo_id = await db.fetch_single_query(query, values)
+    return {"id": todo_id[0], **todo_item.dict()}
 
 
 @app.get("/todos/{todo_id}")
-def read_todo_item(todo_id: int):
-    query = "SELECT name, description, due_date FROM tasks WHERE id = %s;"
-    todo_item = db.fetch_single_query(query, (todo_id,))
+async def read_todo_item(todo_id: int):
+    query = "SELECT name, description, due_date FROM tasks WHERE id = $1;"
+    todo_item = await db.fetch_single_query(query, (todo_id,))
     if todo_item is None:
         raise HTTPException(status_code=404, detail="To-Do Item not found")
     return {"id": todo_id, "name": todo_item[0], "description": todo_item[1], "due_date": todo_item[2]}
 
 
 @app.put("/todos/{todo_id}")
-def update_todo_item(todo_id: int, todo_item: ToDoItem):
-    query = "UPDATE tasks SET name = %s, description = %s, due_date = %s WHERE id = %s;"
+async def update_todo_item(todo_id: int, todo_item: ToDoItem):
+    query = "UPDATE tasks SET name = $1, description = $2, due_date = $3 WHERE id = $4;"
     values = (todo_item.name, todo_item.description,
               todo_item.due_date, todo_id)
-    db.execute_query(query, values)
+    await db.execute_query(query, values)
     return {"id": todo_id, **todo_item.dict()}
 
 
 @app.delete("/todos/{todo_id}")
-def delete_todo_item(todo_id: int):
-    query = "DELETE FROM tasks WHERE id = %s;"
-    db.execute_query(query, (todo_id,))
+async def delete_todo_item(todo_id: int):
+    query = "DELETE FROM tasks WHERE id = $1;"
+    await db.execute_query(query, (todo_id,))
     return {"message": "To-Do Item deleted successfully"}

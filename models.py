@@ -1,6 +1,8 @@
-from pydantic import BaseModel
-import psycopg2
 import os
+import asyncpg
+from pydantic import BaseModel
+
+# Define the To-Do Item model
 
 
 class ToDoItem(BaseModel):
@@ -8,32 +10,34 @@ class ToDoItem(BaseModel):
     description: str
     due_date: str
 
+# Define the Database class
+
 
 class Database:
-    def __init__(self):
-        self.conn = psycopg2.connect(
+    async def connect(self):
+        self.conn = await asyncpg.connect(
             host=os.getenv("DB_HOST"),
             database=os.getenv("DB_NAME"),
             user=os.getenv("DB_USER"),
             password=os.getenv("DB_PASSWORD")
         )
+        return self.conn
 
-    def execute_query(self, query, values=None):
-        cursor = self.conn.cursor()
-        cursor.execute(query, values)
-        self.conn.commit()
-        cursor.close()
+    async def disconnect(self):
+        await self.conn.close()
 
-    def fetch_query(self, query, values=None):
-        cursor = self.conn.cursor()
-        cursor.execute(query, values)
-        result = cursor.fetchall()
-        cursor.close()
+    async def execute_query(self, query: str, values: tuple):
+        async with self.conn.transaction():
+            result = await self.conn.execute(query, *values)
         return result
 
-    def fetch_single_query(self, query, values=None):
-        cursor = self.conn.cursor()
-        cursor.execute(query, values)
-        result = cursor.fetchone()
-        cursor.close()
+    async def fetch_query(self, query: str, values: tuple = None):
+        if values:
+            result = await self.conn.fetch(query, *values)
+        else:
+            result = await self.conn.fetch(query)
+        return result
+
+    async def fetch_single_query(self, query: str, values: tuple):
+        result = await self.conn.fetchrow(query, *values)
         return result
