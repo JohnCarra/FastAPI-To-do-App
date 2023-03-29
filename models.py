@@ -16,10 +16,11 @@ class ToDoItem(BaseModel):
 class Database:
     async def connect(self):
         self.conn = await asyncpg.connect(
-            host=os.getenv("DB_HOST"),
-            database=os.getenv("DB_NAME"),
-            user=os.getenv("DB_USER"),
-            password=os.getenv("DB_PASSWORD")
+            host=os.getenv("DB_HOST", "127.0.0.1"),
+            database=os.getenv("DB_NAME", "default_db_name"),
+            user=os.getenv("DB_USER", "default_db_user"),
+            password=os.getenv("DB_PASSWORD", "default_db_password"),
+            port=os.getenv("DB_PORT", 5432)
         )
         return self.conn
 

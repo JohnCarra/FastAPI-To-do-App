@@ -11,4 +11,4 @@ CREATE TABLE IF NOT EXISTS public.tasks
 );
 
 -- Grant necessary access to the user
-GRANT ALL PRIVILEGES ON TABLE public.tasks TO your_db_user;
+GRANT ALL PRIVILEGES ON TABLE public.tasks TO your_actual_db_user;

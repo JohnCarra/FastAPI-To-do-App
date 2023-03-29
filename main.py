@@ -1,3 +1,5 @@
+import os
+import time
 from fastapi import FastAPI, HTTPException
 from dotenv import load_dotenv
 from models import ToDoItem, Database
@@ -8,9 +10,19 @@ app = FastAPI()
 db = Database()
 
 
+async def wait_for_db():
+    while True:
+        try:
+            await db.connect()
+            break
+        except Exception as e:
+            print(f"Error connecting to the database: {e}")
+            time.sleep(5)  # Wait for 5 seconds before trying again
+
+
 @app.on_event("startup")
 async def startup():
-    await db.connect()
+    await wait_for_db()
 
 
 @app.on_event("shutdown")
