@@ -57,3 +57,7 @@ The server will be available at `http://127.0.0.1:8000`.
 ### 7. Explore the API
 
 Visit `http://127.0.0.1:8000/docs` to access the interactive API documentation and test the endpoints.
+
+### Optional. Run with Docker.
+
+Run the command 'docker compose up' within the files directory.
