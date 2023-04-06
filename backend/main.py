@@ -1,28 +1,31 @@
 import os
 import time
 from fastapi import FastAPI, HTTPException
-from dotenv import load_dotenv
 from models import ToDoItem, Database
-
-load_dotenv()  # Load environment variables from .env file
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+origins = [
+    "http://localhost",
+    "http://localhost:8080",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 db = Database()
 
 
-async def wait_for_db():
-    while True:
-        try:
-            await db.connect()
-            break
-        except Exception as e:
-            print(f"Error connecting to the database: {e}")
-            time.sleep(5)  # Wait for 5 seconds before trying again
-
-
 @app.on_event("startup")
-async def startup():
-    await wait_for_db()
+async def startup_event():
+    await db.connect()
+    await db.init_db()  # Call the init_db method from the Database class
 
 
 @app.on_event("shutdown")
@@ -30,12 +33,19 @@ async def shutdown():
     await db.disconnect()
 
 
-@app.post("/todos/")
+@app.post("/todos")
 async def create_todo_item(todo_item: ToDoItem):
-    query = "INSERT INTO tasks (name, description, due_date) VALUES ($1, $2, $3) RETURNING id;"
+    query = "INSERT INTO tasks (name, description, due_date) VALUES (?, ?, ?);"
     values = (todo_item.name, todo_item.description, todo_item.due_date)
-    todo_id = await db.fetch_single_query(query, values)
-    return {"id": todo_id[0], **todo_item.dict()}
+    todo_id = await db.fetch_single_query(query, values, return_lastrowid=True)
+    return {"id": todo_id, **todo_item.dict()}
+
+
+@app.get("/todos")
+async def read_all_todo_items():
+    query = "SELECT id, name, description, due_date FROM tasks;"
+    todo_items = await db.fetch_query(query)
+    return [{"id": item[0], "name": item[1], "description": item[2], "due_date": item[3]} for item in todo_items]
 
 
 @app.get("/todos/{todo_id}")
