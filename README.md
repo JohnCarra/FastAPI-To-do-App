@@ -1,5 +1,5 @@
 # FastAPI To-Do App
-A simple To-Do application using FastAPI, Pydantic, SQLite and React.
+This is a To-Do application built using FastAPI, Pydantic, and SQLite for the backend, and React for the frontend. The application allows users to create, read, update, and delete to-do items, and all the data is stored in a SQLite database. The backend is built using FastAPI and uses Pydantic for validation, while the frontend is built using React and uses Axios to make HTTP requests to the backend API. The application can be run locally using Docker Compose.
 
 ## 1. Clone the repository
 Clone the repository to your local machine:
