@@ -38,10 +38,17 @@ npm start
 
 ### To run the FastAPI: 
 cd todolist/backend  
+
 uvicorn main:app --reload  
 
 ### To run the entire application using Docker, run the following command from the root directory of the repository:
 
 docker-compose up  
 This will build and start both the FastAPI server and the React front-end.   
+
+### GUI Work in Progress
+This just shows the basic functionality of the front end talking to the backend inside the containers.  
+  
+
+![W I P](https://user-images.githubusercontent.com/82400181/230301191-aced98d9-1f28-4c8f-8a4b-01bd03b43b4b.png)
 
